@@ -1,1 +1,5 @@
 *.exe
+*.log
+*.vscode
+*.idea
+Part1Array
