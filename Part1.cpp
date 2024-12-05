@@ -42,8 +42,8 @@ void printOrderTuple(order const &singleOrder){
 class Node {
   public:
   Node(){orderDetails = make_tuple("",INT_MIN,"");next=nullptr;};
-  Node(order newOrder,Node* newNext=nullptr,Node* newPrevious=nullptr, Node* newDown=nullptr){
-    orderDetails=newOrder;next=newNext;previous=newPrevious;down=newDown;};
+  Node(order newOrder,Node* newNext=nullptr,Node* newPrevious=nullptr, Node* newDown=nullptr){orderDetails=newOrder;next=newNext;previous=newPrevious;down=newDown;};
+  ~Node(){next = nullptr, previous = nullptr; down = nullptr;};
   order GetOrder(){return orderDetails;};
   void SetOrder(order newOrder){orderDetails=newOrder;};
   Node* GetNext(){return next;};
@@ -156,12 +156,20 @@ class LinkedList {
     string orderID= "ORD"+to_string(orderIDNo);
     return Search(orderID);
   };
-  private:
+  protected:
   Node* head;
 };
 
 class DoubleLinkedList : public LinkedList {
-
+  public: 
+  Node* GetPrevious(){return previous;};
+  void SetPrevious(Node* newPrevious){previous = newPrevious;};
+  void SutureNodes(Node* targetNode1,Node* targetNode2){targetNode1->SetNext(targetNode2);targetNode2->SetPrevious(targetNode1);};
+  Node* RemoveNode(Node* targetNode){
+    Node* before = targetNode->GetPrevious(); Node* after = targetNode->GetNext(); SutureNodes(before,after); delete targetNode;
+    };
+  protected:
+  Node* previous;
 };
 class SkipList : public DoubleLinkedList {
 
