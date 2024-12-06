@@ -1,116 +1,15 @@
-  #include <iostream>
-  #include <fstream>
-  #include <string>
-  #include <cstdlib>
-  #include <map>
-  #include <vector>
-  #include <tuple>
-  #include <regex>
+#ifndef Functions_cpp
+  #include "Functions.cpp"
+#endif
 using namespace std;
-typedef tuple<std::string, int , std::string> order;
-typedef vector<order> ordersVector;
-bool validateOrderPattern(string orderName){
-  string orderPrefix = "ORD";
-  string orderNumber = "[0-9]+";
-  regex orderPattern("^"+orderPrefix+orderNumber+"$");
-  bool isValid = regex_search(orderName,orderPattern);
-  return isValid;
-};
 
-bool validateLocationPattern(string location){
-  string locationPrefix = "Location ";
-  string locationPostfix = "[A-Z]{1}";
-  regex locationPattern("^"+locationPrefix+locationPostfix+"$");
-  bool isValid = regex_search(location,locationPattern);
-  return isValid;
-}
-
-bool isValidOrder(order const &newOrder){
-  auto [orderName, priority,location] = newOrder;
-  bool isValidFormat = typeid(priority)==typeid(int);
-  // printOrderTuple(newOrder);
-  // cout << priority << " " << isValidFormat << endl;
-  isValidFormat = validateOrderPattern(orderName);
-  isValidFormat = validateLocationPattern(location);
-  return isValidFormat;
-};
-void printOrderTuple(order const &singleOrder){
-  auto [detail1, detail2, detail3] = singleOrder;
-  cout << detail1 << endl << "Priority: " << detail2 << endl << "Destination: " << detail3 << endl;
-};
-//single reuseable node for all versions linkedlist
-vector<std::string> parseString(std::string const &originalString, std::string delimiter){
-  size_t pos = 0; // holding our position index in the string
-  std::string tempString = originalString; //intended to leave original untouched
-  int size = tempString.size();
-  vector<string> parsedStrings;
-  std::string word;
-  if( size > 0 ){
-    while((pos = tempString.find(delimiter)) != std::string::npos){ //remove words at delimiter repeatedly
-      word = tempString.substr(0, tempString.find(delimiter));
-      tempString = tempString.substr(pos + delimiter.length());
-      parsedStrings.push_back(word);
-    }
-    word = tempString.at(0); // all that's left now is a single character with location id
-    parsedStrings.push_back(word);
-  }
-  return parsedStrings;
-};
-
-//read orders from text file
-ordersVector gatherData(){
-  ordersVector returnVector;
-    std::ifstream inputFile;
-    inputFile.open("data.txt");
-    std::string inputString;
-    std::string stringTemp;
-    std::string splitTemp;
-    if (inputFile.is_open()) {
-        while (!inputFile.eof()) {
-          getline(inputFile,stringTemp);
-          vector<std::string>parsed = parseString(stringTemp, " ");
-          int size = parsed.size();
-          if( size > 0 ){
-            int priority = atoi(&parsed.at(1).at(0));
-            std::string location = parsed.at(2) + " " + parsed.at(3);
-            std::string orderID = parsed.at(0);
-            returnVector.push_back(make_tuple(orderID, priority, location));
-          };
-        };
-    };
-    return returnVector;
-};
-
-
-void printOrdersVector(ordersVector orders){
-  for( const order& orderElem : orders ){
-    printOrderTuple(orderElem);
-  }
-};
-
-order searchOrdersVector(string orderName, ordersVector const &orders){
-  for(order orderElem : orders){
-    if(get<0>(orderElem)==orderName){
-      return orderElem;
-    }
-  }
-  return make_tuple("NOT FOUND", INT_MIN, "NOT FOUND");
-};
-
-
-int addDeliveryOrder(order const &newOrder, ordersVector &orders){
-  if(isValidOrder(newOrder)){
-    orders.push_back(newOrder);
-    return orders.size()-1;
-  }
-  cout << "INVALID ORDER FORMAT. ORDER NOT ADDED." << endl;
-  return INT_MIN;
-};
-
+// single multipurpose Node
+// sacrifices lightweight characteristic for flexibility in accomodating variants of LinkedList structure
 class Node {
   public:
-  Node(){orderDetails = make_tuple("",INT_MIN,"");next=nullptr;};
-  Node(order newOrder,Node* newNext=nullptr,Node* newPrevious=nullptr, Node* newDown=nullptr){orderDetails=newOrder;next=newNext;previous=newPrevious;down=newDown;};
+  Node(){orderDetails = make_tuple("",INT_MIN,"");next=nullptr;previous=nullptr;down=nullptr;lvl=INT_MIN;};
+  Node(order newOrder, Node* newNext=nullptr, Node* newPrevious=nullptr, Node* newDown=nullptr, int newLvl=INT_MIN){orderDetails=newOrder;next=newNext;previous=newPrevious;down=newDown; lvl=newLvl;};
+  Node(int newLvl){lvl=newLvl;orderDetails = make_tuple("",INT_MIN,"");next=nullptr;previous=nullptr;down=nullptr;}
   ~Node(){next = nullptr, previous = nullptr; down = nullptr;};
   order GetOrder(){return orderDetails;};
   void SetOrder(order newOrder){orderDetails=newOrder;};
@@ -120,11 +19,14 @@ class Node {
   Node* GetPrevious(){return previous;};
   void SetPrevious(Node* newPrevious){previous = newPrevious;};
   Node* GetDown(){return down;};
+  void SetDown(Node* newDown){down=newDown;};
+  int GetLvl(){return lvl;};
   protected:
   order orderDetails;
   Node* next;
   Node* previous;
   Node* down;
+  int lvl;
 };
 
 //graveyard for every previous Node class....
@@ -221,7 +123,7 @@ class LinkedList {
   };
   //allow search explicitly by an int since ORD is a mandatory prefix
   Node* Search(int orderIDNo){
-    string orderID= "ORD"+to_string(orderIDNo);
+    string orderID = "ORD"+to_string(orderIDNo);
     return Search(orderID);
   };
   protected:
@@ -233,7 +135,7 @@ class DoubleLinkedList : public LinkedList {
   DoubleLinkedList();
     Node* GetPrevious(){return previous;};
     void SetPrevious(Node* newPrevious){previous = newPrevious;};
-    void SutureNodes(Node* targetNode1,Node* targetNode2){targetNode1->SetNext(targetNode2);targetNode2->SetPrevious(targetNode1);};
+    void SutureNodes(Node* targetNode1, Node* targetNode2){targetNode1->SetNext(targetNode2);targetNode2->SetPrevious(targetNode1);};
     order RemoveNode(Node* targetNode){
       order deletedOrder = targetNode ->GetOrder();Node* before = targetNode->GetPrevious(); 
       Node* after = targetNode->GetNext(); 
@@ -241,6 +143,7 @@ class DoubleLinkedList : public LinkedList {
       delete targetNode;
       return deletedOrder;
     };
+
     void DisplayInReverse(){
       Node* currentNode = GetLast();
       currentNode->PrintOrderDetails();
@@ -255,27 +158,39 @@ class DoubleLinkedList : public LinkedList {
       targetNode->SetOrder(newOrder);
       return newOrder;
     };
+
   protected:
   Node* previous;
 };
 class SkipList : public DoubleLinkedList {
   public:
   SkipList();
+  Node* GetHead(){
+  }
   void Insert(Node* newNode){
+    bool isInsertedSuccesfully = false;
     string newID = get<0>(newNode->GetOrder());
     Node* currentNode = GetHead();
     auto currentID = [](Node* current){return get<0>(current->GetOrder());};
     if(currentID(currentNode) < newID){
       SutureNodes(newNode,currentNode);
+      isInsertedSuccesfully = true;
     } else {
       while(currentNode->GetNext()!=nullptr){
         currentNode = currentNode->GetNext();
         if(currentID(currentNode)<newID){
           SutureNodes(newNode,currentNode);
+          isInsertedSuccesfully = true;
           break;
         }
       }
-    }    
+    }
+    if(!isInsertedSuccesfully){
+      if(currentNode != GetLast()){
+        currentNode = GetLast();
+      }
+      SutureNodes(currentNode,newNode);
+    }
   };
   void SutureNodes(Node* targetNode1, Node* targetNode2){
 
@@ -288,7 +203,8 @@ class SkipList : public DoubleLinkedList {
   };
 
   protected:
-  Node* down;
+  Node* nullHead;
+  int maxLevel;
 };
 
 void vectorToLinkedList(ordersVector vect, LinkedList &list){
@@ -297,8 +213,7 @@ void vectorToLinkedList(ordersVector vect, LinkedList &list){
   }
 };
 
-// #MAIN starts here........                                                            
-int main () {
+void runPart1(){
   ordersVector ordersVect = gatherData();
   LinkedList ordersLL = LinkedList(); 
   //printOrdersVector(data); //print orders vector test;
@@ -313,5 +228,4 @@ int main () {
   ordersLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
   ordersLL.Search(99)->PrintOrderDetails();
   ordersLL.DisplayList();
-  return 0;
 };
