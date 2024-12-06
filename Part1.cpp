@@ -39,6 +39,74 @@ void printOrderTuple(order const &singleOrder){
   cout << detail1 << endl << "Priority: " << detail2 << endl << "Destination: " << detail3 << endl;
 };
 //single reuseable node for all versions linkedlist
+vector<std::string> parseString(std::string const &originalString, std::string delimiter){
+  size_t pos = 0; // holding our position index in the string
+  std::string tempString = originalString; //intended to leave original untouched
+  int size = tempString.size();
+  vector<string> parsedStrings;
+  std::string word;
+  if( size > 0 ){
+    while((pos = tempString.find(delimiter)) != std::string::npos){ //remove words at delimiter repeatedly
+      word = tempString.substr(0, tempString.find(delimiter));
+      tempString = tempString.substr(pos + delimiter.length());
+      parsedStrings.push_back(word);
+    }
+    word = tempString.at(0); // all that's left now is a single character with location id
+    parsedStrings.push_back(word);
+  }
+  return parsedStrings;
+};
+
+//read orders from text file
+ordersVector gatherData(){
+  ordersVector returnVector;
+    std::ifstream inputFile;
+    inputFile.open("data.txt");
+    std::string inputString;
+    std::string stringTemp;
+    std::string splitTemp;
+    if (inputFile.is_open()) {
+        while (!inputFile.eof()) {
+          getline(inputFile,stringTemp);
+          vector<std::string>parsed = parseString(stringTemp, " ");
+          int size = parsed.size();
+          if( size > 0 ){
+            int priority = atoi(&parsed.at(1).at(0));
+            std::string location = parsed.at(2) + " " + parsed.at(3);
+            std::string orderID = parsed.at(0);
+            returnVector.push_back(make_tuple(orderID, priority, location));
+          };
+        };
+    };
+    return returnVector;
+};
+
+
+void printOrdersVector(ordersVector orders){
+  for( const order& orderElem : orders ){
+    printOrderTuple(orderElem);
+  }
+};
+
+order searchOrdersVector(string orderName, ordersVector const &orders){
+  for(order orderElem : orders){
+    if(get<0>(orderElem)==orderName){
+      return orderElem;
+    }
+  }
+  return make_tuple("NOT FOUND", INT_MIN, "NOT FOUND");
+};
+
+
+int addDeliveryOrder(order const &newOrder, ordersVector &orders){
+  if(isValidOrder(newOrder)){
+    orders.push_back(newOrder);
+    return orders.size()-1;
+  }
+  cout << "INVALID ORDER FORMAT. ORDER NOT ADDED." << endl;
+  return INT_MIN;
+};
+
 class Node {
   public:
   Node(){orderDetails = make_tuple("",INT_MIN,"");next=nullptr;};
@@ -91,7 +159,7 @@ class Node {
 class LinkedList {
   public:
   LinkedList(){head=nullptr;};
-  LinkedList(Node* newHead){head = newHead;};
+  // LinkedList(Node* newHead){head = newHead;};
   Node* GetHead(){return head;};
   void SetHead(Node* newHead){
     head=newHead;
@@ -162,84 +230,65 @@ class LinkedList {
 
 class DoubleLinkedList : public LinkedList {
   public: 
-  Node* GetPrevious(){return previous;};
-  void SetPrevious(Node* newPrevious){previous = newPrevious;};
-  void SutureNodes(Node* targetNode1,Node* targetNode2){targetNode1->SetNext(targetNode2);targetNode2->SetPrevious(targetNode1);};
-  Node* RemoveNode(Node* targetNode){
-    Node* before = targetNode->GetPrevious(); Node* after = targetNode->GetNext(); SutureNodes(before,after); delete targetNode;
+  DoubleLinkedList();
+    Node* GetPrevious(){return previous;};
+    void SetPrevious(Node* newPrevious){previous = newPrevious;};
+    void SutureNodes(Node* targetNode1,Node* targetNode2){targetNode1->SetNext(targetNode2);targetNode2->SetPrevious(targetNode1);};
+    order RemoveNode(Node* targetNode){
+      order deletedOrder = targetNode ->GetOrder();Node* before = targetNode->GetPrevious(); 
+      Node* after = targetNode->GetNext(); 
+      SutureNodes(before,after); 
+      delete targetNode;
+      return deletedOrder;
+    };
+    void DisplayInReverse(){
+      Node* currentNode = GetLast();
+      currentNode->PrintOrderDetails();
+      while(currentNode ->GetPrevious() != nullptr){
+        currentNode = currentNode->GetPrevious();
+        currentNode->PrintOrderDetails();
+      }
+    }
+    order UpdatePriority(Node* targetNode,int newPriority){
+      auto[orderName, priority, location] =targetNode ->GetOrder();
+      order newOrder = make_tuple(orderName,newPriority,location);
+      targetNode->SetOrder(newOrder);
+      return newOrder;
     };
   protected:
   Node* previous;
 };
 class SkipList : public DoubleLinkedList {
+  public:
+  SkipList();
+  void Insert(Node* newNode){
+    string newID = get<0>(newNode->GetOrder());
+    Node* currentNode = GetHead();
+    auto currentID = [](Node* current){return get<0>(current->GetOrder());};
+    if(currentID(currentNode) < newID){
+      SutureNodes(newNode,currentNode);
+    } else {
+      while(currentNode->GetNext()!=nullptr){
+        currentNode = currentNode->GetNext();
+        if(currentID(currentNode)<newID){
+          SutureNodes(newNode,currentNode);
+          break;
+        }
+      }
+    }    
+  };
+  void SutureNodes(Node* targetNode1, Node* targetNode2){
 
-};
-vector<std::string> parseString(std::string const &originalString, std::string delimiter){
-  size_t pos = 0; // holding our position index in the string
-  std::string tempString = originalString; //intended to leave original untouched
-  int size = tempString.size();
-  vector<string> parsedStrings;
-  std::string word;
-  if( size > 0 ){
-    while((pos = tempString.find(delimiter)) != std::string::npos){ //remove words at delimiter repeatedly
-      word = tempString.substr(0, tempString.find(delimiter));
-      tempString = tempString.substr(pos + delimiter.length());
-      parsedStrings.push_back(word);
-    }
-    word = tempString.at(0); // all that's left now is a single character with location id
-    parsedStrings.push_back(word);
-  }
-  return parsedStrings;
-};
+  };
+  order RemoveNode(Node* targetNode){
 
-//read orders from text file
-ordersVector gatherData(){
-  ordersVector returnVector;
-    std::ifstream inputFile;
-    inputFile.open("data.txt");
-    std::string inputString;
-    std::string stringTemp;
-    std::string splitTemp;
-    if (inputFile.is_open()) {
-        while (!inputFile.eof()) {
-          getline(inputFile,stringTemp);
-          vector<std::string>parsed = parseString(stringTemp, " ");
-          int size = parsed.size();
-          if( size > 0 ){
-            int priority = atoi(&parsed.at(1).at(0));
-            std::string location = parsed.at(2) + " " + parsed.at(3);
-            std::string orderID = parsed.at(0);
-            returnVector.push_back(make_tuple(orderID, priority, location));
-          };
-        };
-    };
-    return returnVector;
-};
+  };
+  Node* Search(){
 
+  };
 
-void printOrdersVector(ordersVector orders){
-  for( const order& orderElem : orders ){
-    printOrderTuple(orderElem);
-  }
-};
-
-order searchOrdersVector(string orderName, ordersVector const &orders){
-  for(order orderElem : orders){
-    if(get<0>(orderElem)==orderName){
-      return orderElem;
-    }
-  }
-  return make_tuple("NOT FOUND", INT_MIN, "NOT FOUND");
-};
-
-
-int addDeliveryOrder(order const &newOrder, ordersVector &orders){
-  if(isValidOrder(newOrder)){
-    orders.push_back(newOrder);
-    return orders.size()-1;
-  }
-  cout << "INVALID ORDER FORMAT. ORDER NOT ADDED." << endl;
-  return INT_MIN;
+  protected:
+  Node* down;
 };
 
 void vectorToLinkedList(ordersVector vect, LinkedList &list){
