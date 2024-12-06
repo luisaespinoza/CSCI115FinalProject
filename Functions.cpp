@@ -6,6 +6,7 @@
   #include <vector>
   #include <tuple>
   #include <regex>
+  #include <cmath>
 using namespace std;
 typedef tuple<std::string, int , std::string> order;
 typedef vector<order> ordersVector;
@@ -102,4 +103,41 @@ int addDeliveryOrder(order const &newOrder, ordersVector &orders){
   }
   cout << "INVALID ORDER FORMAT. ORDER NOT ADDED." << endl;
   return INT_MIN;
+};
+
+
+string generateRandomLetterAZ(){
+  srand(0);
+  //65-90 is the ASCII decimal value for [A-Z]
+  string randomLetter = to_string( static_cast<char>( floor( 65 + rand() * 26)));
+  return randomLetter;
+};
+
+//range is zero inclusive [0-range]
+int generateRandomNumber(int range){
+  srand(time(0));
+  int randomInt = floor( rand()*range);
+  return randomInt;
+};
+
+vector<int> generateRandomList(int sizeN){
+  vector<int> randomList;
+  for(int i = 0; i < sizeN; i += 1){
+    randomList.push_back(generateRandomNumber(5));
+  }
+  return randomList;
+};
+
+ordersVector generateNRandomOrders( int sizeN){
+  vector<int> randomList = generateRandomList(sizeN);
+  ordersVector newOrders;
+  for(int i = 0; i < sizeN; i += 1){
+    string orderPrefix = "ORD";
+    string locationPrefix = "Location";
+    string orderNumber = to_string(i);
+    string location = locationPrefix + generateRandomLetterAZ();
+    string orderName = orderPrefix+orderNumber;
+    order newOrder = make_tuple(orderName,randomList.at(i),location);
+    newOrders.push_back(newOrder);
+  }
 };
