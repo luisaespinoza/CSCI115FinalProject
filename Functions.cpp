@@ -7,9 +7,20 @@
   #include <tuple>
   #include <regex>
   #include <cmath>
+  #include <ctime>
 using namespace std;
 typedef tuple<std::string, int , std::string> order;
 typedef vector<order> ordersVector;
+typedef void (*callback_function)(ordersVector &unsortedOrders); // definition type for conciseness
+void measureExecutionTime(void (*sortFunction)(ordersVector&), ordersVector &unsortedOrders) {
+  int size = unsortedOrders.size();
+  clock_t start = clock();
+  sortFunction(unsortedOrders);
+  clock_t end = clock();
+  double elapsed = double(end - start) / CLOCKS_PER_SEC;
+  std::cout << "Time taken for n = " << size << ": " << elapsed << " seconds" << std::endl;
+};
+
 bool validateOrderPattern(string orderName){
   string orderPrefix = "ORD";
   string orderNumber = "[0-9]+";
@@ -135,22 +146,67 @@ ordersVector generateNRandomOrders( int sizeN){
   }
   return newOrders;
 };
-void swap(order order1,order order2){
+void swap(order &order1,order &order2){
   order tempOrder = order1;
   order1=order2;
-  order2=temporder;
+  order2=tempOrder;
+};
+
+int getPriority(order currentOrder){
+  return get<1>(currentOrder);
 };
 
 void bubbleSort(ordersVector &unsortedOrders) {
   int size = unsortedOrders.size();
-  for (int i = 0; i < size - 1; i++) {
-    for (int j = 0; j < size - i - 1; j++) {
-      auto GetPriority =[](order current) {
-        return get<1>(current);
-      };
-        if ( GetPriority(unsortedOrders.at(j)) > GetPriority(unsortedOrders.at(j+1))) {
+  for (int i = 0; i < size - 1; i+=1) {
+    for (int j = 0; j < size - i - 1; j+=1) {
+        if ( getPriority(unsortedOrders.at(j)) > getPriority(unsortedOrders.at(j+1))) {
           swap(unsortedOrders.at(j),unsortedOrders.at(j+1));
         };
     };
   };
+};
+
+void selectionSort(ordersVector &unsortedOrders) {
+  int size = unsortedOrders.size();
+  for (int i = 0; i < size - 1; i+=1) {
+    int lowerBound = i;
+    for (int j = i + 1; j < size; j+=1) {
+      if (getPriority(unsortedOrders.at(j)) < getPriority(unsortedOrders.at(lowerBound)))
+      lowerBound = j;
+    }
+    swap(unsortedOrders.at(i), unsortedOrders.at(lowerBound));
+  }
+};
+
+void insertionSort(ordersVector &unsortedOrders) {
+  int size = unsortedOrders.size();
+  // int shifts = 0;
+  for (int i = 1; i < size; i+=1) {
+    int key = getPriority(unsortedOrders.at(i));
+    order keyOrder = unsortedOrders.at(i);
+    int j = i - 1;
+    while (j >= 0 && getPriority(unsortedOrders.at(j)) > key) {
+      unsortedOrders.at(j+1) = unsortedOrders.at(j);
+      j-=1;
+  // shifts += 1;
+    }
+    unsortedOrders.at(j+1) = keyOrder;
+  }
+// cout<< "Shifts: " << shifts << endl;
+};
+
+void shellSort(ordersVector &unsortedOrders) {
+  int size = unsortedOrders.size();
+  for (int gap = size / 2; gap > 0; gap /= 2) {
+    for (int i = gap; i < size; i+=1) {
+      int temp = getPriority(unsortedOrders.at(i));
+      order tempOrder;
+      int j;
+      for (j = i; j >= gap && getPriority(unsortedOrders.at(j-gap))> temp; j -= gap) {
+        unsortedOrders.at(j) =  unsortedOrders.at(j - gap);
+      }
+      unsortedOrders.at(j) = tempOrder;
+    }
+  }
 };
