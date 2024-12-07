@@ -9,9 +9,13 @@
   #include <cmath>
   #include <ctime>
 using namespace std;
+
+
 typedef tuple<std::string, int , std::string> order;
 typedef vector<order> ordersVector;
 typedef void (*callback_function)(ordersVector &unsortedOrders); // definition type for conciseness
+
+
 void measureExecutionTime(void (*sortFunction)(ordersVector&), ordersVector &unsortedOrders) {
   int size = unsortedOrders.size();
   clock_t start = clock();
@@ -156,8 +160,9 @@ int getPriority(order currentOrder){
   return get<1>(currentOrder);
 };
 
-void bubbleSort(ordersVector &unsortedOrders) {
-  int size = unsortedOrders.size();
+void bubbleSort(ordersVector &unsortedOrders,int nOptional = INT_MIN) {
+  //Sort first N if N is given as argument : otherwise sort the whole vector
+  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
   for (int i = 0; i < size - 1; i+=1) {
     for (int j = 0; j < size - i - 1; j+=1) {
         if ( getPriority(unsortedOrders.at(j)) > getPriority(unsortedOrders.at(j+1))) {
@@ -167,8 +172,9 @@ void bubbleSort(ordersVector &unsortedOrders) {
   };
 };
 
-void selectionSort(ordersVector &unsortedOrders) {
-  int size = unsortedOrders.size();
+void selectionSort(ordersVector &unsortedOrders, int nOptional = INT_MIN) {
+  //Sort first N if N is given as argument : otherwise sort the whole vector
+  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
   for (int i = 0; i < size - 1; i+=1) {
     int lowerBound = i;
     for (int j = i + 1; j < size; j+=1) {
@@ -179,7 +185,9 @@ void selectionSort(ordersVector &unsortedOrders) {
   }
 };
 
-void insertionSort(ordersVector &unsortedOrders) {
+void insertionSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
+  //Sort first N if N is given as argument : otherwise sort the whole vector
+  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
   int size = unsortedOrders.size();
   // int shifts = 0;
   for (int i = 1; i < size; i+=1) {
@@ -196,8 +204,9 @@ void insertionSort(ordersVector &unsortedOrders) {
 // cout<< "Shifts: " << shifts << endl;
 };
 
-void shellSort(ordersVector &unsortedOrders) {
-  int size = unsortedOrders.size();
+void shellSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
+  //Sort first N if N is given as argument : otherwise sort the whole vector
+  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
   for (int gap = size / 2; gap > 0; gap /= 2) {
     for (int i = gap; i < size; i+=1) {
       int temp = getPriority(unsortedOrders.at(i));
