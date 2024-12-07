@@ -8,6 +8,7 @@ void runPart2(){
   callback_function selectPtr = selectionSort;
   callback_function insertPtr = insertionSort;
   callback_function shellPtr = shellSort;
+  ordersVector ordersTable = gatherData();
   ordersVector newOrders = generateNRandomOrders(10000);
-
+  ordersVector subOrders(newOrders.begin(),newOrders.begin()+1000);
 };
