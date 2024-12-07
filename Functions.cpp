@@ -13,13 +13,13 @@ using namespace std;
 
 typedef tuple<std::string, int , std::string> order;
 typedef vector<order> ordersVector;
-typedef void (*callback_function)(ordersVector &unsortedOrders); // definition type for conciseness
+typedef void (*callback_function)(ordersVector &unsortedOrders,int nOptional); // definition type for conciseness
 
 
-void measureExecutionTime(void (*sortFunction)(ordersVector&), ordersVector &unsortedOrders) {
+void measureExecutionTime(void (*sortFunction)(ordersVector&,int), ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   int size = unsortedOrders.size();
   clock_t start = clock();
-  sortFunction(unsortedOrders);
+  sortFunction(unsortedOrders,nOptional);
   clock_t end = clock();
   double elapsed = double(end - start) / CLOCKS_PER_SEC;
   std::cout << "Time taken for n = " << size << ": " << elapsed << " seconds" << std::endl;
@@ -188,7 +188,7 @@ void selectionSort(ordersVector &unsortedOrders, int nOptional = INT_MIN) {
 void insertionSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   //Sort first N if N is given as argument : otherwise sort the whole vector
   int size = nOptional > 1 ? nOptional : unsortedOrders.size();
-  int size = unsortedOrders.size();
+
   // int shifts = 0;
   for (int i = 1; i < size; i+=1) {
     int key = getPriority(unsortedOrders.at(i));
