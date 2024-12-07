@@ -128,8 +128,29 @@ ordersVector generateNRandomOrders( int sizeN){
     string orderNumber = to_string(i);
     string location = locationPrefix + generateRandomLetterAZ();
     string orderName = orderPrefix+orderNumber;
-    int priority =generateRandomNumber(5);
+    int maxPriority = 5;
+    int priority =generateRandomNumber(maxPriority);
     order newOrder = make_tuple(orderName,priority,location);
     newOrders.push_back(newOrder);
   }
+  return newOrders;
+};
+void swap(order order1,order order2){
+  order tempOrder = order1;
+  order1=order2;
+  order2=temporder;
+};
+
+void bubbleSort(ordersVector &unsortedOrders) {
+  int size = unsortedOrders.size();
+  for (int i = 0; i < size - 1; i++) {
+    for (int j = 0; j < size - i - 1; j++) {
+      auto GetPriority =[](order current) {
+        return get<1>(current);
+      };
+        if ( GetPriority(unsortedOrders.at(j)) > GetPriority(unsortedOrders.at(j+1))) {
+          swap(unsortedOrders.at(j),unsortedOrders.at(j+1));
+        };
+    };
+  };
 };
