@@ -120,16 +120,7 @@ int generateRandomNumber(int range){
   return randomInt;
 };
 
-vector<int> generateRandomList(int sizeN){
-  vector<int> randomList;
-  for(int i = 0; i < sizeN; i += 1){
-    randomList.push_back(generateRandomNumber(5));
-  }
-  return randomList;
-};
-
 ordersVector generateNRandomOrders( int sizeN){
-  vector<int> randomList = generateRandomList(sizeN);
   ordersVector newOrders;
   for(int i = 0; i < sizeN; i += 1){
     string orderPrefix = "ORD";
@@ -137,7 +128,8 @@ ordersVector generateNRandomOrders( int sizeN){
     string orderNumber = to_string(i);
     string location = locationPrefix + generateRandomLetterAZ();
     string orderName = orderPrefix+orderNumber;
-    order newOrder = make_tuple(orderName,randomList.at(i),location);
+    int priority =generateRandomNumber(5);
+    order newOrder = make_tuple(orderName,priority,location);
     newOrders.push_back(newOrder);
   }
 };
