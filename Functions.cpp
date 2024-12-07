@@ -162,7 +162,7 @@ int getPriority(order currentOrder){
 
 void bubbleSort(ordersVector &unsortedOrders,int nOptional = INT_MIN) {
   //Sort first N if N is given as argument : otherwise sort the whole vector
-  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
+  int size = nOptional > 1? nOptional : unsortedOrders.size();
   for (int i = 0; i < size - 1; i+=1) {
     for (int j = 0; j < size - i - 1; j+=1) {
         if ( getPriority(unsortedOrders.at(j)) > getPriority(unsortedOrders.at(j+1))) {
@@ -174,7 +174,7 @@ void bubbleSort(ordersVector &unsortedOrders,int nOptional = INT_MIN) {
 
 void selectionSort(ordersVector &unsortedOrders, int nOptional = INT_MIN) {
   //Sort first N if N is given as argument : otherwise sort the whole vector
-  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
+  int size = nOptional > 1 ?nOptional : unsortedOrders.size();
   for (int i = 0; i < size - 1; i+=1) {
     int lowerBound = i;
     for (int j = i + 1; j < size; j+=1) {
@@ -187,7 +187,7 @@ void selectionSort(ordersVector &unsortedOrders, int nOptional = INT_MIN) {
 
 void insertionSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   //Sort first N if N is given as argument : otherwise sort the whole vector
-  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
+  int size = nOptional > 1 ? nOptional : unsortedOrders.size();
   int size = unsortedOrders.size();
   // int shifts = 0;
   for (int i = 1; i < size; i+=1) {
@@ -206,7 +206,7 @@ void insertionSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
 
 void shellSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   //Sort first N if N is given as argument : otherwise sort the whole vector
-  int size = nOptional > 1 INT_MIN: nOptional : unsortedOrders.size();
+  int size = nOptional > 1?nOptional : unsortedOrders.size();
   for (int gap = size / 2; gap > 0; gap /= 2) {
     for (int i = gap; i < size; i+=1) {
       int temp = getPriority(unsortedOrders.at(i));
