@@ -225,12 +225,12 @@ class TreeNode {
   public:
     TreeNode(){orderDetails=make_tuple("",INT_MIN,"");left=nullptr;right=nullptr;};
     TreeNode(order newOrder,TreeNode* newLeft=nullptr,TreeNode* newRight=nullptr){orderDetails=newOrder;left=newLeft;right=newRight;};
-    TreeNode* GetLeft();
-    void SetLeft(TreeNode* newLeft);
-    TreeNode* GetRight();
-    void SetRight(TreeNode* newRight);
-    void SetOrder();
-    order GetOrder();
+    TreeNode* GetLeft(){return left;};
+    void SetLeft(TreeNode* newLeft){left=newLeft;};
+    TreeNode* GetRight(){return right;};
+    void SetRight(TreeNode* newRight){right=newRight;};
+    void SetOrder(order newOrder){orderDetails=newOrder;};
+    order GetOrder(){return orderDetails;};
   private:
     order orderDetails;
     TreeNode* left;
