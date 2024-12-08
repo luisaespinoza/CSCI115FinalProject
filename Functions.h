@@ -10,7 +10,7 @@
   #include <ctime>
 using namespace std;
 
-
+// ^^Part1
 typedef tuple<std::string, int , std::string> order;
 typedef vector<order> ordersVector;
 typedef void (*callback_function)(ordersVector &unsortedOrders,int nOptional); // definition type for conciseness
@@ -120,7 +120,7 @@ int addDeliveryOrder(order const &newOrder, ordersVector &orders){
   return INT_MIN;
 };
 
-
+// ^^Part2
 string generateRandomLetterAZ(){
   srand(0);
   //65-90 is the ASCII decimal value for [A-Z]
@@ -219,3 +219,53 @@ void shellSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
     }
   }
 };
+
+// ^^ Part3
+class TreeNode {
+  public:
+    TreeNode(){orderDetails=make_tuple("",INT_MIN,"");left=nullptr;right=nullptr;};
+    TreeNode(order newOrder,TreeNode* newLeft=nullptr,TreeNode* newRight=nullptr){orderDetails=newOrder;left=newLeft;right=newRight;};
+    TreeNode* GetLeft();
+    void SetLeft(TreeNode* newLeft);
+    TreeNode* GetRight();
+    void SetRight(TreeNode* newRight);
+    void SetOrder();
+    order GetOrder();
+  private:
+    order orderDetails;
+    TreeNode* left;
+    TreeNode* right;
+};
+
+// // / Function to insert a value into the BST
+// TreeNode* insertNode(TreeNode* root, int value) {
+// if (root == nullptr) {
+// return new TreeNode(value);
+// }
+// if (value < root->value) {
+// root->left = insertNode(root->left, value);
+// } else if (value > root->value) {
+// root->right = insertNode(root->right, value);
+// }
+// return root;
+// }
+
+// // / Function to print the tree in in-order traversal
+// void inOrder(TreeNode* root) {
+// if (root == nullptr) return;
+// inOrder(root->left);
+// cout << root->value << " ";
+// inOrder(root->right);
+// }
+
+// // Recursive function to search for a value in the BST
+// bool search(TreeNode* root, int value) {
+// if (root == nullptr) return false;
+// if (root->value == value) {
+// return true;
+// } else if (value < root->value) {
+// return search(root->left, value);
+// } else {
+// return search(root->right, value);
+// }
+// }
