@@ -16,7 +16,7 @@ typedef vector<order> ordersVector;
 typedef void (*callback_function)(ordersVector &unsortedOrders,int nOptional); // definition type for conciseness
 
 
-void measureExecutionTime(void (*sortFunction)(ordersVector&,int), ordersVector &unsortedOrders, int nOptional=INT_MIN) {
+void measureExecutionTime(callback_function sortFunction, ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   int size = unsortedOrders.size();
   clock_t start = clock();
   sortFunction(unsortedOrders,nOptional);
@@ -210,7 +210,7 @@ void shellSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   for (int gap = size / 2; gap > 0; gap /= 2) {
     for (int i = gap; i < size; i+=1) {
       int temp = getPriority(unsortedOrders.at(i));
-      order tempOrder;
+      order tempOrder = unsortedOrders.at(i);
       int j;
       for (j = i; j >= gap && getPriority(unsortedOrders.at(j-gap))> temp; j -= gap) {
         unsortedOrders.at(j) =  unsortedOrders.at(j - gap);
