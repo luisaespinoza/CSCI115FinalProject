@@ -231,41 +231,47 @@ class TreeNode {
     void SetRight(TreeNode* newRight){right=newRight;};
     void SetOrder(order newOrder){orderDetails=newOrder;};
     order GetOrder(){return orderDetails;};
+    void PrintOrderDetails(){printOrderTuple(orderDetails);};
   private:
     order orderDetails;
     TreeNode* left;
     TreeNode* right;
 };
 
-// // / Function to insert a value into the BST
-// TreeNode* insertNode(TreeNode* root, int value) {
-// if (root == nullptr) {
-// return new TreeNode(value);
-// }
-// if (value < root->value) {
-// root->left = insertNode(root->left, value);
-// } else if (value > root->value) {
-// root->right = insertNode(root->right, value);
-// }
-// return root;
-// }
-
-// // / Function to print the tree in in-order traversal
-// void inOrder(TreeNode* root) {
-// if (root == nullptr) return;
-// inOrder(root->left);
-// cout << root->value << " ";
-// inOrder(root->right);
-// }
-
-// // Recursive function to search for a value in the BST
-// bool search(TreeNode* root, int value) {
-// if (root == nullptr) return false;
-// if (root->value == value) {
-// return true;
-// } else if (value < root->value) {
-// return search(root->left, value);
-// } else {
-// return search(root->right, value);
-// }
-// }
+class BST {
+  public:
+  BST(){};
+  TreeNode* GetRoot(){return root;};
+  void SetRoot(TreeNode* newRoot){root = newRoot;};
+  TreeNode* Insert(TreeNode* localRoot,order newOrder){
+    if(localRoot ==nullptr){return new TreeNode(newOrder);};
+    int newOrderPriority = get<1>(newOrder);
+    int rootPriority = get<1>(localRoot->GetOrder());
+    if(newOrderPriority < rootPriority){
+      localRoot->SetLeft(Insert(localRoot->GetLeft(),newOrder));
+    } else if(newOrderPriority > rootPriority){
+      localRoot->SetRight(Insert(localRoot->GetLeft(),newOrder));
+    }
+    return localRoot;
+  };
+  void InOrder(TreeNode* localRoot){
+    if(localRoot == nullptr){return;};
+    InOrder(localRoot->GetLeft());
+    localRoot->PrintOrderDetails();
+    InOrder(localRoot->GetRight());
+  };
+  bool Search(TreeNode* localRoot, order candidateOrder){
+    auto [rootName, rootPriority, rootLocation] = localRoot ->GetOrder();
+    auto [candidateName, candidatePriority, candidateLocation] = candidateOrder;
+    if(localRoot == nullptr) return false;
+    if(rootName == candidateName){return true;} 
+    else if (candidatePriority < rootPriority){
+      return Search(localRoot->GetLeft(), candidateOrder);
+    }
+    else {
+      return Search(localRoot->GetRight(),candidateOrder);
+    }
+  }
+  private:
+  TreeNode* root;
+};
