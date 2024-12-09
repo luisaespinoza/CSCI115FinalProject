@@ -225,6 +225,7 @@ class TreeNode {
   public:
     TreeNode(){orderDetails=make_tuple("",INT_MIN,"");left=nullptr;right=nullptr;};
     TreeNode(order newOrder,TreeNode* newLeft=nullptr,TreeNode* newRight=nullptr){orderDetails=newOrder;left=newLeft;right=newRight;};
+    ~TreeNode(){SetLeft(nullptr);SetRight(nullptr);};
     TreeNode* GetLeft(){return left;};
     void SetLeft(TreeNode* newLeft){left=newLeft;};
     TreeNode* GetRight(){return right;};
@@ -260,18 +261,24 @@ class BST {
     localRoot->PrintOrderDetails();
     InOrder(localRoot->GetRight());
   };
-  bool Search(TreeNode* localRoot, order candidateOrder){
+  TreeNode* Search(TreeNode* localRoot, order candidateOrder){
     auto [rootName, rootPriority, rootLocation] = localRoot ->GetOrder();
     auto [candidateName, candidatePriority, candidateLocation] = candidateOrder;
-    if(localRoot == nullptr) return false;
-    if(rootName == candidateName){return true;} 
+    if(localRoot == nullptr) {
+      cout << "ORDER NOT FOUND" << endl;
+      return nullptr;};
+    if(rootName == candidateName){return localRoot;} 
     else if (candidatePriority < rootPriority){
       return Search(localRoot->GetLeft(), candidateOrder);
     }
     else {
       return Search(localRoot->GetRight(),candidateOrder);
     }
-  }
+  };
+  order Delete(order orderToDelete){
+    TreeNode* nodeToDelete = Search(root,orderToDelete);
+    delete[] nodeToDelete;
+  };
   private:
   TreeNode* root;
 };
