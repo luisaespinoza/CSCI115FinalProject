@@ -122,7 +122,7 @@ class LinkedList {
     cout <<orderID<<" NOT FOUND" << endl;
     return nullptr;
   };
-  //allow search explicitly by an int since ORD is a mandatory prefix
+  //allow search by an int since ORD is a mandatory prefix
   Node* Search(int orderIDNo){
     string orderID = "ORD"+to_string(orderIDNo);
     return Search(orderID);
