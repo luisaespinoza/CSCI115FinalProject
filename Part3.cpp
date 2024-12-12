@@ -64,30 +64,47 @@ class BST {
     }
   };
   void SutureNodes(){};
-  order Delete(order orderToDelete){
-    TreeNode* nodeToDelete = Search(root,orderToDelete);
-    if(nodeToDelete!=nullptr){
-      TreeNode* localRoot = nodeToDelete->GetRoot();
-      if(nodeToDelete->IsLeaf()){
-        if(localRoot->GetLeft() == nodeToDelete){localRoot->SetLeft(nullptr);}
-        else{localRoot->SetRight(nullptr);};
-      }//next checks if only one is a nullptr. this works because this condition is only reached
-      // if BOTH branches weren't nullptr; 
-      else if( nodeToDelete ->GetLeft() ==nullptr || nodeToDelete ->GetRight() == nullptr){
-        if(nodeToDelete ->GetLeft()!= nullptr){localRoot->SetLeft(nodeToDelete->GetLeft());}
-        else{localRoot->SetRight(nodeToDelete->GetRight());};
-      }//this condition is only reached when both branches are defined 
-      // the most complex scenario for deletion
-      else {
-        
-      }
-      delete[] nodeToDelete;
-    } 
-    return orderToDelete;
+  TreeNode* GetSuccessor(TreeNode* curr){
+    curr = curr->GetRight();
+    while (curr != nullptr && curr->GetLeft() != nullptr)
+        curr = curr->GetLeft();
+    return curr;
+  }
+  TreeNode* DeleteNode(TreeNode* localRoot, order orderToDelete){
+    auto [name, priority, location] = orderToDelete;
+    auto [rootName, rootPriority, rootLocation] = localRoot->GetOrder();
+    // Base case
+    if (localRoot == nullptr)
+        return localRoot;
+
+    // If key to be searched is in a subtree
+    if(rootPriority > priority){localRoot->SetLeft(DeleteNode(localRoot->GetLeft(), orderToDelete));}
+    else if(rootPriority < priority){localRoot->SetRight(DeleteNode(localRoot->GetRight(),orderToDelete));}
+    // If root matches with the given key
+    else {
+
+        // Cases when root has 0 children
+        // or only right child
+        if ( localRoot ->GetLeft() == nullptr){
+            TreeNode* temp = localRoot->GetRight();
+            delete[] localRoot;
+            return temp;
+        }
+
+        // When root has only left child
+        if (localRoot->GetRight() == nullptr) {
+            TreeNode* temp = localRoot->GetLeft();
+            delete[] localRoot;
+            return temp;
+        }
+
+        // When both children are present
+        TreeNode* successor = GetSuccessor(localRoot);
+        localRoot->SetOrder(successor->GetOrder());
+        localRoot->SetRight(DeleteNode(localRoot->GetRight(), successor->GetOrder()));
+    }
+    return localRoot;
   };
   private:
   TreeNode* root;
 };
-
-
-
