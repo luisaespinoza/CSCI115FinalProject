@@ -35,12 +35,14 @@ class BST {
   TreeNode* GetRoot(){return root;};
   void SetRoot(TreeNode* newRoot){root = newRoot;};
   TreeNode* Insert(TreeNode* localRoot,order newOrder){
-    if(localRoot ==nullptr){return new TreeNode(newOrder);};
-    int newOrderPriority = get<1>(newOrder);
-    int rootPriority = get<1>(localRoot->GetOrder());
-    if(newOrderPriority < rootPriority){
+    if(localRoot == nullptr){return new TreeNode(newOrder);};
+    int orderNumber = parseOrderNumber(get<0>(newOrder));
+    // int newOrderPriority = get<1>(newOrder);
+    int rootOrderNumber = parseOrderNumber(get<0>(localRoot->GetOrder()));
+    // int rootPriority = get<1>(localRoot->GetOrder());
+    if(orderNumber < rootOrderNumber){
       localRoot->SetLeft(Insert(localRoot->GetLeft(),newOrder));
-    } else if(newOrderPriority > rootPriority){
+    } else if(orderNumber > rootOrderNumber){
       localRoot->SetRight(Insert(localRoot->GetLeft(),newOrder));
     }
     return localRoot;
@@ -54,11 +56,13 @@ class BST {
   TreeNode* Search(TreeNode* localRoot, order candidateOrder){
     auto [rootName, rootPriority, rootLocation] = localRoot ->GetOrder();
     auto [candidateName, candidatePriority, candidateLocation] = candidateOrder;
+    int rootNumber = parseOrderNumber(rootName);
+    int candidateNumber = parseOrderNumber(candidateName);
     if(localRoot == nullptr) {
       cout << "ORDER NOT FOUND" << endl;
       return nullptr;};
-    if(rootName == candidateName){return localRoot;} 
-    else if (candidatePriority < rootPriority){
+    if(rootNumber == candidateNumber){return localRoot;} 
+    else if (candidateNumber< rootNumber){
       return Search(localRoot->GetLeft(), candidateOrder);
     }
     else {
@@ -74,16 +78,17 @@ class BST {
   TreeNode* DeleteNode(TreeNode* localRoot, order orderToDelete){
     auto [name, priority, location] = orderToDelete;
     auto [rootName, rootPriority, rootLocation] = localRoot->GetOrder();
+    int rootOrderNumber = parseOrderNumber(rootName);
+    int orderNumber = parseOrderNumber(name);
     // Base case
     if (localRoot == nullptr)
         return localRoot;
 
     // If order is in a subtree
-    if(rootPriority > priority){localRoot->SetLeft(DeleteNode(localRoot->GetLeft(), orderToDelete));}
-    else if(rootPriority < priority){localRoot->SetRight(DeleteNode(localRoot->GetRight(),orderToDelete));}
+    if(rootOrderNumber > orderNumber){localRoot->SetLeft(DeleteNode(localRoot->GetLeft(), orderToDelete));}
+    else if(rootOrderNumber < orderNumber){localRoot->SetRight(DeleteNode(localRoot->GetRight(),orderToDelete));}
     // If root matches order
     else {
-
         // Cases when root has 0 branches
         // or only right branch
         if ( localRoot ->GetLeft() == nullptr){
@@ -132,18 +137,18 @@ class AVLTree : public BST {
     rightBranch->SetHeight(max(GetHeight(rightBranch->GetLeft()), GetHeight(rightBranch->GetRight())) + 1);
     return rightBranch;
   };
-  TreeNode* RotateInserted(TreeNode*localRoot, int priorityInserted){
+  TreeNode* RotateInserted(TreeNode*localRoot, int orderNumberInserted){
     int balance = GetBalance(localRoot);
-    int rootLeftBranchPriority = get<1>(localRoot->GetLeft()->GetOrder());
-    int rootRightBranchPriority =get<1>(localRoot->GetRight()->GetOrder());
+    int rootLeftBranch = parseOrderNumber(get<0>(localRoot->GetLeft()->GetOrder()));
+    int rootRightBranch = parseOrderNumber(get<0>(localRoot->GetRight()->GetOrder()));
     // booleans to make if statements readable later
-    // too many variable declarations??? Readability vs variable bloat..... hmmmmm
-    bool isLeftHeavy = balance > -1;
+    // too many variable declarations??? Readability vs variable bloat hmmmmm......
+    bool isLeftHeavy = balance < -1;
     bool isRightHeavy = balance > 1;
-    bool isLessThanLeft = priorityInserted < rootLeftBranchPriority;
-    bool isLessThanRight = priorityInserted < rootRightBranchPriority;
-    bool isGreaterThanLeft = priorityInserted > rootLeftBranchPriority;
-    bool isGreaterThanRight = priorityInserted > rootRightBranchPriority;
+    bool isLessThanLeft = orderNumberInserted < rootLeftBranch;
+    bool isLessThanRight = orderNumberInserted < rootRightBranch;
+    bool isGreaterThanLeft = orderNumberInserted > rootLeftBranch;
+    bool isGreaterThanRight = orderNumberInserted > rootRightBranch;
     // R rotation
     if (isRightHeavy && isLessThanLeft) {return RotateRight(localRoot);};
     //L rotation
@@ -165,13 +170,15 @@ class AVLTree : public BST {
     //if empty
     if (!localRoot) {return new TreeNode(newOrder);};
     auto [rootName, rootPriority , rootLocation] = localRoot->GetOrder();
+    int orderNumber =parseOrderNumber(name);
+    int rootOrderNumber = parseOrderNumber(rootName);
 
-    if (priority < rootPriority) {localRoot->SetLeft( Insert(newOrder, localRoot->GetLeft()));}
-    else if (priority > rootPriority) {localRoot->SetRight( Insert(newOrder, localRoot->GetRight()));}
+    if (orderNumber < rootOrderNumber) {localRoot->SetLeft( Insert(newOrder, localRoot->GetLeft()));}
+    else if (orderNumber > rootOrderNumber) {localRoot->SetRight( Insert(newOrder, localRoot->GetRight()));}
     else {return localRoot;};
     localRoot->SetHeight(1 + max(GetHeight(localRoot->GetLeft()), GetHeight(localRoot->GetRight())));
     //abstracted away all logic for rotation. Cases are checked by RotateInserted and handled there.
-    return RotateInserted(localRoot, priority);
+    return RotateInserted(localRoot, orderNumber);
   };
 };
 

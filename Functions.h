@@ -53,7 +53,7 @@ void printOrderTuple(order const &singleOrder){
   auto [detail1, detail2, detail3] = singleOrder;
   cout << detail1 << endl << "Priority: " << detail2 << endl << "Destination: " << detail3 << endl;
 };
-//single reuseable node for all versions linkedlist
+
 vector<std::string> parseString(std::string const &originalString, std::string delimiter){
   size_t pos = 0; // holding our position index in the string
   std::string tempString = originalString; //intended to leave original untouched
@@ -72,6 +72,20 @@ vector<std::string> parseString(std::string const &originalString, std::string d
   return parsedStrings;
 };
 
+//extracts the number 
+int parseOrderNumber(string orderName){
+  string number = orderName.substr(3);
+  int orderNumber = 0;
+  int size = number.size();
+  int power = size - 1;
+  //not a pretty solution but this takes string size as the upper bound for powers of ten
+  //ie 432 has size()==3 so power is 2 as in 4*1^2 + 3*10^1 + 2*10^0
+  for(char num : number){
+    orderNumber += atoi(&num) * pow(10, power);
+    power -= 1;
+  };
+  return orderNumber;
+};
 //read orders from text file
 ordersVector gatherData(){
   ordersVector returnVector;
