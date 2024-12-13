@@ -75,7 +75,7 @@ class BST {
         currentNode = currentNode->GetLeft();
     return currentNode;
   }
-  TreeNode* DeleteNode(TreeNode* localRoot, order orderToDelete){
+  TreeNode* BSTDelete(TreeNode* localRoot, order orderToDelete){
     auto [name, priority, location] = orderToDelete;
     auto [rootName, rootPriority, rootLocation] = localRoot->GetOrder();
     int rootOrderNumber = parseOrderNumber(rootName);
@@ -110,6 +110,11 @@ class BST {
         localRoot->SetRight(DeleteNode(localRoot->GetRight(), successor->GetOrder()));
     }
     return localRoot;
+  }
+  TreeNode* DeleteNode(TreeNode* localRoot, order orderToDelete){
+    /*this is a wrapper for code reuse and avoiding later redefinition by AVL's DeleteNode
+    later AVL will redefine DeleteNode and extend functionality to include balancing without redefining the code in BSTDelete */
+    return BSTDelete(localRoot,orderToDelete);
   };
   protected:
   TreeNode* root;
@@ -179,6 +184,24 @@ class AVLTree : public BST {
     localRoot->SetHeight(1 + max(GetHeight(localRoot->GetLeft()), GetHeight(localRoot->GetRight())));
     //abstracted away all logic for rotation. Cases are checked by RotateInserted and handled there.
     return RotateInserted(localRoot, orderNumber);
+  };
+  TreeNode* Rebalance(TreeNode* localRoot){
+    localRoot->SetHeight(1 + max(GetHeight(localRoot->GetLeft()),GetHeight(localRoot->GetRight())));
+    int balance = GetBalance(localRoot);
+    int rightBranchBalance = GetBalance(localRoot->GetRight());
+    int leftBranchBalance = GetBalance(localRoot->GetLeft());
+    bool isLeftHeavy = balance < -1;
+    bool isRightHeavy = balance > 1;
+    if(isRightHeavy && leftBranchBalance >=0){return RotateRight(localRoot);};
+    if(isRightHeavy && leftBranchBalance < 0){localRoot->SetLeft(RotateLeft(localRoot->GetLeft()));return RotateRight(localRoot);};
+    if(isLeftHeavy && rightBranchBalance <=0){return RotateLeft(localRoot);};
+    if(isLeftHeavy && rightBranchBalance > 0){localRoot->SetRight(RotateRight(localRoot->GetRight()));return RotateLeft(localRoot);};
+    //if no rotations return unchanged
+    return localRoot;
+  };
+  TreeNode* DeleteNode(TreeNode* localRoot, order orderToDelete){
+    //Extending functionality of BSTDelete, Rebalance wraps around orginal logic and applies rotations
+    return Rebalance(BSTDelete(localRoot, orderToDelete));
   };
 };
 
