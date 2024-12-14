@@ -14,8 +14,6 @@ using namespace std;
 typedef tuple<std::string, int , std::string> order;
 typedef vector<order> ordersVector;
 typedef void (*callback_function)(ordersVector &unsortedOrders,int nOptional); // definition type for conciseness
-
-
 void measureExecutionTime(callback_function sortFunction, ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   int size = unsortedOrders.size();
   clock_t start = clock();
@@ -82,6 +80,7 @@ int parseOrderNumber(string orderName){
   //ie 432 has size()==3 so power is 2 as in 4*1^2 + 3*10^1 + 2*10^0
   for(char num : number){
     orderNumber += atoi(&num) * pow(10, power);
+    // cout<<"Number =" << orderNumber << endl;
     power -= 1;
   };
   return orderNumber;
