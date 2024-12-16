@@ -204,8 +204,6 @@ void selectionSort(ordersVector &unsortedOrders, int nOptional = INT_MIN) {
 void insertionSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   //Sort first N if N is given as argument : otherwise sort the whole vector
   int size = nOptional > 1 ? nOptional : unsortedOrders.size();
-
-  // int shifts = 0;
   for (int i = 1; i < size; i+=1) {
     int key = getPriority(unsortedOrders.at(i));
     order keyOrder = unsortedOrders.at(i);
@@ -213,11 +211,9 @@ void insertionSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
     while (j >= 0 && getPriority(unsortedOrders.at(j)) > key) {
       unsortedOrders.at(j+1) = unsortedOrders.at(j);
       j-=1;
-  // shifts += 1;
     }
     unsortedOrders.at(j+1) = keyOrder;
   }
-// cout<< "Shifts: " << shifts << endl;
 };
 
 void shellSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
@@ -236,4 +232,3 @@ void shellSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
   }
 };
 
-// ^^ Part3

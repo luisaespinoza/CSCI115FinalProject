@@ -235,12 +235,15 @@ class DeliveryGraph {
     map<char,char> parent;
     pair<char,int> vertexCurrent;
     map<pair<char,int>,bool> inQueue;
+    //might seem strange  but the reasoning is the same as BFS and DFS. It improves readability to see
+    // entire blocks of code have name and organized by their function. Lambdas keep them localized.
     auto PushToQueue = [&vertexQueue, &inQueue](pair<char,int> newVertex){
-      if(!inQueue[newVertex]){
-        vertexQueue.push(newVertex); inQueue[newVertex]=true;
-      };
+      // if newVertex is not in queue push it to the queue and make entry for inQueue map
+      if(!inQueue[newVertex]){vertexQueue.push(newVertex); inQueue[newVertex]=true;};
     };
+    // pops and updates inQueue map
     auto PopFromQueue = [&vertexQueue, &inQueue](){inQueue[vertexQueue.top()]=false;vertexQueue.pop();};
+
     auto QueueNeighbors= [&neighbors,&visited,&PushToQueue] (Edges &edges,pair<char,int>vertexCurrent) {
       for(char neighbor : neighbors){
         bool isVisited = false;
@@ -274,14 +277,18 @@ class DeliveryGraph {
           isStart =true;
         }
         tempVertex=parent[tempVertex];
-        // temp.push(parent[tempVertex]);
       }
       while(!temp.empty()){
-        // cout <<"no .... i'm the problem" << endl;
         path.push_back(temp.top());
         temp.pop();
       }
       paths[destination]=path;
+      //this crucial line fixed all the issues from last night. Reinitialize the path to empty
+      // for the next pass. The algorithm was fine otherwise
+      // Software Engineering in a nutshell. One line changes everything
+      // What was the "study" about ghost engineers making "trivial" changes to code?
+      // Guess I'm a ghost engineer now...
+      path = vector<char>();
     };
     // set all distances to infinity
     for(char vertex : Vertices){shortestDistance[vertex]=INT_MAX;};
@@ -298,13 +305,13 @@ class DeliveryGraph {
         PopFromQueue();
         for(char visitedVertex:visited){
           if(vertexCurrent.first==visitedVertex){
-            PopFromQueue();
             isVisited=true;
           }
         }
       } while(isVisited);
       neighbors = GetNeighbors(vertexCurrent.first);
       visited.push_back(vertexCurrent.first);
+      // cout <<"Visited Nodes" << endl;
       // PrintPath(visited);
       // if(vertexCurrent.first==destination){
       //   ReconstructPath();
@@ -338,9 +345,14 @@ void runPart3(){
   // PrintPath(graph.DFS('A','D'));
   // PrintPath(graph.DFS('B','A'));
   // PrintPath(graph.DFS('C','B'));
-  destinationPath = graph.ShortestPaths('A');
-  PrintPath(destinationPath['I']);
-  };
+  for(char const start : Vertices){
+    destinationPath = graph.ShortestPaths(start);
+    for( char const destination: Vertices){
+      cout << "final path from "<<'A'<<" to "<<destination<<" : "<< endl;
+      PrintPath(destinationPath[destination]);
+    };
+  }
+};
 
 //main for testing part3 unused in production file
 int main () {
