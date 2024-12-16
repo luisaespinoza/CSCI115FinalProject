@@ -23,7 +23,19 @@ EdgeMap prebuiltMap = {
   {make_pair('I','J'),6},
   {make_pair('J','A'),6},
 };
-
+bool operator<(const pair<char,int> &vertexAndWeight1, const pair<char,int> &vertexAndWeight2){
+  return vertexAndWeight1.second < vertexAndWeight2.second;
+};
+void PrintPath(vector<char> path){
+  int size = path.size();
+  for(int i = 0 ; i < size; i += 1){
+    cout << path.at(i);
+    if(size - 1 != i){
+      cout << "==>" ;
+    };
+  };
+  cout << endl;
+;}
 class Edges {
   public:
   Edges(){isDirected=true;};
@@ -33,6 +45,7 @@ class Edges {
       // by toggling behavior in methods to handle inverse assignments
   Edges(EdgeMap &preconstructedEdgeMap,bool isDirectedGraph=true){edges = preconstructedEdgeMap;isDirected=isDirectedGraph;};
   // this insert handles symmetric mapping
+    EdgeMap GetEdges(){return edges;};
     Edge StandardizeOrder(Edge &newEdge){
       if(!isDirected){
         if(newEdge.first > newEdge.second){
@@ -174,7 +187,7 @@ class DeliveryGraph {
         for(char visitedVertex: visited){
           if(neighbor == visitedVertex){isVisited = true;};
         }
-        if(!isVisited){vertexStack.push(neighbor);parent[neighbor]=front;};//fixthis
+        if(!isVisited){vertexStack.push(neighbor);parent[neighbor]=front;};//fixed
       };
     };
     auto ReconstructPath = [&parent,&path,&destinationVertex](){
@@ -197,24 +210,114 @@ class DeliveryGraph {
 
     // this is our loop
     while(!vertexStack.empty()){
-      char front = vertexStack.top();//fixthis
+      char front = vertexStack.top();//fixed
       neighbors = GetNeighbors(front);
       visited.push_back(front);
       if(front==destinationVertex){
         ReconstructPath();
         return path;
       };
-      //will eventually stop populating the queue and break the loop
+      //will eventually stop populating the stack and break the loop
       vertexStack.pop();
       PushNeighbors(front);
     };
     return path;
 
   };
-  // // vvv Dijsktra's algorithm vvv
-  // vector<char> ShortestPath(char start, char destination){
-  //   ;
-  // };
+  // vvv Dijsktra's algorithm vvv
+  auto ShortestPaths(char start){
+    priority_queue<pair<char,int>,vector<pair<char,int>>,greater<pair<char,int>>>vertexQueue; //it's a lot I know
+    //basically creates priority queue of char,int pairs contained within a vector ordering on pairs 
+    //by the second element as defined earlier on line 26
+    map<char,int> shortestDistance;
+    vector<char> visited, neighbors, path;
+    map<char,vector<char>> paths;
+    map<char,char> parent;
+    pair<char,int> vertexCurrent;
+    map<pair<char,int>,bool> inQueue;
+    auto PushToQueue = [&vertexQueue, &inQueue](pair<char,int> newVertex){
+      if(!inQueue[newVertex]){
+        vertexQueue.push(newVertex); inQueue[newVertex]=true;
+      };
+    };
+    auto PopFromQueue = [&vertexQueue, &inQueue](){inQueue[vertexQueue.top()]=false;vertexQueue.pop();};
+    auto QueueNeighbors= [&neighbors,&visited,&PushToQueue] (Edges &edges,pair<char,int>vertexCurrent) {
+      for(char neighbor : neighbors){
+        bool isVisited = false;
+        for(char visitedVertex: visited){if(neighbor == visitedVertex){isVisited = true;};}
+        if(!isVisited){
+          pair<char,char> edgeName = make_pair(vertexCurrent.first,neighbor);
+          int edgeWeight = edges.GetEdges()[edgeName];
+          pair<char,int>neighborPair = make_pair(neighbor,edgeWeight);
+          PushToQueue(neighborPair);
+        };
+      };
+    };
+    auto UpdateShortestDistance = [&neighbors,&parent,&shortestDistance](char currentVertex,Edges &edges){
+      for(char neighbor:neighbors){
+        pair<char,char> edgeName = make_pair(currentVertex,neighbor);
+        int edgeWeight = edges.GetEdges()[edgeName];
+        if(shortestDistance[currentVertex]+edgeWeight < shortestDistance[neighbor]){
+          shortestDistance[neighbor]=shortestDistance[currentVertex]+edgeWeight;
+          parent[neighbor]=currentVertex;
+        };
+      }
+    };
+    auto ReconstructPath = [&start, &parent, &path, &paths](char destination){
+      stack<char> temp;
+      // temp.push(destinationVertex);
+      char tempVertex = destination;
+      bool isStart = false;
+      while(!isStart){
+        temp.push(tempVertex);
+        if(tempVertex==start){
+          isStart =true;
+        }
+        tempVertex=parent[tempVertex];
+        // temp.push(parent[tempVertex]);
+      }
+      while(!temp.empty()){
+        // cout <<"no .... i'm the problem" << endl;
+        path.push_back(temp.top());
+        temp.pop();
+      }
+      paths[destination]=path;
+    };
+    // set all distances to infinity
+    for(char vertex : Vertices){shortestDistance[vertex]=INT_MAX;};
+    vertexCurrent= make_pair(start,0);
+    shortestDistance[start]=0;
+    PushToQueue(vertexCurrent);
+    // neighbors = GetNeighbors(vertexCurrent.first);
+
+    while(!vertexQueue.empty()){
+      bool isVisited;
+      do {
+        isVisited=false;
+        vertexCurrent=vertexQueue.top();
+        PopFromQueue();
+        for(char visitedVertex:visited){
+          if(vertexCurrent.first==visitedVertex){
+            PopFromQueue();
+            isVisited=true;
+          }
+        }
+      } while(isVisited);
+      neighbors = GetNeighbors(vertexCurrent.first);
+      visited.push_back(vertexCurrent.first);
+      // PrintPath(visited);
+      // if(vertexCurrent.first==destination){
+      //   ReconstructPath();
+      //   return path;
+      // };
+      UpdateShortestDistance(vertexCurrent.first,edgeMap);
+      QueueNeighbors(edgeMap,vertexCurrent);
+    };
+    for(char destination:Vertices){
+      ReconstructPath(destination);
+    }
+    return paths;
+  };
 
   private:
   Edges edgeMap;
@@ -222,26 +325,21 @@ class DeliveryGraph {
   bool isDirected;
 };
 
-void PrintPath(vector<char> path){
-  int size = path.size();
-  for(int i = 0 ; i < size; i += 1){
-    cout << path.at(i);
-    if(size - 1 != i){
-      cout << "==>" ;
-    };
-  };
-  cout << endl;
-;}
+
 void runPart3(){
   DeliveryGraph graph;
-  PrintPath(graph.BFS('A','J'));
-  PrintPath(graph.BFS('A','D'));
-  PrintPath(graph.BFS('B','A'));
-  PrintPath(graph.BFS('C','B'));
-  PrintPath(graph.DFS('A','J'));
-  PrintPath(graph.DFS('A','D'));
-  PrintPath(graph.DFS('B','A'));
-  PrintPath(graph.DFS('C','B'));
+  map<char,vector<char>> destinationPath;
+  map<char,map<char,vector<char>>> path;
+  // PrintPath(graph.BFS('A','J'));
+  // PrintPath(graph.BFS('A','D'));
+  // PrintPath(graph.BFS('B','A'));
+  // PrintPath(graph.BFS('C','B'));
+  // PrintPath(graph.DFS('A','J'));
+  // PrintPath(graph.DFS('A','D'));
+  // PrintPath(graph.DFS('B','A'));
+  // PrintPath(graph.DFS('C','B'));
+  destinationPath = graph.ShortestPaths('A');
+  PrintPath(destinationPath['I']);
   };
 
 //main for testing part3 unused in production file

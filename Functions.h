@@ -7,6 +7,7 @@
   #include <tuple>
   #include <queue>
   #include <stack>
+  #include <functional>
   #include <regex>
   #include <cmath>
   #include <ctime>
