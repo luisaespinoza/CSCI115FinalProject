@@ -5,6 +5,8 @@
   #include <map>
   #include <vector>
   #include <tuple>
+  #include <queue>
+  #include <stack>
   #include <regex>
   #include <cmath>
   #include <ctime>
