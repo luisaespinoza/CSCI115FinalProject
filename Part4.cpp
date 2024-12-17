@@ -331,31 +331,42 @@ class DeliveryGraph {
   AdjacencyList vertices;
   bool isDirected;
 };
-
+double measureRunTime(DeliveryGraph &obj, char startVertex, char destinationVertex,  map<char,vector<char>> &destinationPath, int mode=0 ) {
+  clock_t start = clock();
+  if(mode == 0){PrintPath(obj.BFS(startVertex,destinationVertex));};
+  if(mode == 1){PrintPath(obj.DFS(startVertex,destinationVertex));};
+  if(mode == 2){
+      destinationPath = obj.ShortestPaths(startVertex);
+      for( char const destinationDijkstra: Vertices){
+        cout << "final path from "<<startVertex<<" to "<<destinationDijkstra<<" : "<< endl;
+        PrintPath(destinationPath[destinationDijkstra]);
+      };
+  };
+  clock_t end = clock();
+  double elapsed = double(end - start) / CLOCKS_PER_SEC;
+  string searchName;
+  if(mode == 0){searchName = "BFS ";};if(mode==1){searchName = "DFS ";};if(mode==2){searchName= "Dijkstra's ";};
+  std::cout << "Time taken for "<< searchName << startVertex<< " to "<<destinationVertex << " : " << elapsed << " seconds" << std::endl;
+  return elapsed;
+};
 
 void runPart3(){
   DeliveryGraph graph;
   map<char,vector<char>> destinationPath;
   map<char,map<char,vector<char>>> path;
-  PrintPath(graph.BFS('A','J'));
-  PrintPath(graph.BFS('A','D'));
-  PrintPath(graph.BFS('B','A'));
-  PrintPath(graph.BFS('C','B'));
-  PrintPath(graph.DFS('A','J'));
-  PrintPath(graph.DFS('A','D'));
-  PrintPath(graph.DFS('B','A'));
-  PrintPath(graph.DFS('C','B'));
-  for(char const start : Vertices){
-    destinationPath = graph.ShortestPaths(start);
-    for( char const destination: Vertices){
-      cout << "final path from "<<'A'<<" to "<<destination<<" : "<< endl;
-      PrintPath(destinationPath[destination]);
-    };
-  }
+  for( int j =0; j < 2 ; j += 1){
+    measureRunTime(graph,'A','J',destinationPath,j);
+    measureRunTime(graph,'A','D',destinationPath,j);
+    measureRunTime(graph,'B','A',destinationPath,j);
+    measureRunTime(graph,'C','B',destinationPath,j);
+  };
+  measureRunTime(graph,'A','J',destinationPath,2);
+  measureRunTime(graph,'B','J',destinationPath,2);
+  measureRunTime(graph,'D','J',destinationPath,2);
 };
 
 //main for testing part3 unused in production file
-int main () {
-  runPart3();
-  return 0;
-};
+// int main () {
+//   runPart3();
+//   return 0;
+// };

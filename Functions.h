@@ -10,6 +10,8 @@
   #include <functional>
   #include <regex>
   #include <cmath>
+  #include <numeric>
+  #include <random>
   #include <ctime>
 using namespace std;
 
@@ -17,13 +19,14 @@ using namespace std;
 typedef tuple<std::string, int , std::string> order;
 typedef vector<order> ordersVector;
 typedef void (*callback_function)(ordersVector &unsortedOrders,int nOptional); // definition type for conciseness
-void measureExecutionTime(callback_function sortFunction, ordersVector &unsortedOrders, int nOptional=INT_MIN) {
-  int size = unsortedOrders.size();
+double measureExecutionTime(callback_function sortFunction, ordersVector &unsortedOrders, int nOptional=INT_MIN) {
+  int size = nOptional > 0 ? nOptional: unsortedOrders.size();
   clock_t start = clock();
   sortFunction(unsortedOrders,nOptional);
   clock_t end = clock();
   double elapsed = double(end - start) / CLOCKS_PER_SEC;
   std::cout << "Time taken for n = " << size << ": " << elapsed << " seconds" << std::endl;
+  return elapsed;
 };
 
 bool validateOrderPattern(string orderName){
@@ -135,6 +138,15 @@ int addDeliveryOrder(order const &newOrder, ordersVector &orders){
   cout << "INVALID ORDER FORMAT. ORDER NOT ADDED." << endl;
   return INT_MIN;
 };
+bool coinFlip(){
+  double mean = 0.0;        // Mean of the distribution
+  double stddev = 1.0;      // Standard deviation of the distribution
+  random_device seed;  // Obtain a seed from the system
+  mt19937 gen(seed()); // Standard mersenne_twister_engine seeded with rd()
+  std::normal_distribution<> distrib(mean, stddev);
+  double randomNumber = distrib(gen);
+  return randomNumber >0.5;
+};
 
 // ^^Part2
 string generateRandomLetterAZ(){
@@ -230,5 +242,11 @@ void shellSort(ordersVector &unsortedOrders, int nOptional=INT_MIN) {
       unsortedOrders.at(j) = tempOrder;
     }
   }
+};
+
+double average(vector<double> &vect){
+  double sum = accumulate(vect.begin(),vect.end(),0.0);
+  double size  =  static_cast<double>(vect.size());
+  return sum / size;
 };
 

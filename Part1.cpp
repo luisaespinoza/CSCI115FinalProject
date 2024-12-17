@@ -98,7 +98,7 @@ class LinkedList {
       nextOrderNumber = parseOrderNumber(get<0>(currentNode->GetNext()->GetOrder()));
       newOrderNumber = parseOrderNumber(get<0>(newOrder));
     };
-    if(nextOrderNumber!=newOrderNumber){return nullptr;};
+    if(nextOrderNumber==newOrderNumber){return nullptr;};
     Node* newNode = new Node(newOrder);
     SutureNodes(newNode,currentNode->GetNext());
     SutureNodes(currentNode,newNode);
@@ -106,11 +106,10 @@ class LinkedList {
   };
   void DisplayList(){
     Node* currentNode = GetHead();
-    bool isNotEmpty = currentNode == nullptr;
-    cout << isNotEmpty << endl;
     currentNode -> PrintOrderDetails();
     while(currentNode-> GetNext() != nullptr){
       currentNode = currentNode -> GetNext();
+      // if(get<1>(currentNode->GetOrder())>INT_MIN && get<1>(currentNode->GetOrder())< INT_MAX)
       currentNode -> PrintOrderDetails();
     }
   };
@@ -194,15 +193,16 @@ class DoubleLinkedList : public LinkedList {
 class SkipList : public DoubleLinkedList {
   public:
   SkipList(){
-    maxLevel=6;
-    // doing away with zeroth index for ease of translation;
+    maxLevel=4;
     levels = vector<DoubleLinkedList*>(maxLevel);
     // iteratively create LinkedLists for managing every level of SkipList starting from maxLvl
     for(int level = 0; level < maxLevel ; level += 1){
       // create a linkedList with a null head at current level
-      levels.push_back(new DoubleLinkedList(new Node(maxLevel-level,INT_MIN)));
+      levels.at(maxLevel -1 - level) = new DoubleLinkedList(new Node(maxLevel-level,INT_MIN));
       // add a null tail at the current Level
-      levels.at(maxLevel-level)->AppendNode(new Node(maxLevel-level,INT_MAX));
+      levels.at(maxLevel -1 -level)->AppendNode(new Node(maxLevel-level,INT_MAX));
+      SutureNodes(levels.at(maxLevel-1-level)->GetHead(),levels.at(maxLevel-1-level)->GetLast());
+      // cout <<"current level at constructor: " << level << endl;
       // Set all associated down pointers
       // if(level != maxLevel-1){
       //   levels.at(level + 1)->GetHead()->SetDown(levels.at(level)->GetHead());
@@ -212,6 +212,42 @@ class SkipList : public DoubleLinkedList {
     nullHead=levels.at(maxLevel-1)->GetHead();
   };
   Node* GetHead(){return nullHead;};
+  void AppendNode(Node* newNode){
+    Node* currentNode;
+    Node* previousNode;
+    Node* tempUpperNode;
+    int levelsToAdd = 0;
+    srand(time(0));
+    // bool flipCoin = [](){int result =rand()%2;cout <<result << endl;return result>0;};
+    // for(int i = 0; i <50; i += 1){cout << rand()%2 << endl;};
+    while(maxLevel != levelsToAdd){
+      if(coinFlip()){
+        levelsToAdd += 1;
+      }
+      else{
+        break;
+      }
+    };
+    // cout <<"levels created " << levelsToAdd << endl; 
+    for(int level = levelsToAdd ; level >= 0; level -=1){
+      // cout <<"current level: "<< level << endl;
+      currentNode = levels.at(level)->GetLast();
+      // currentNode->PrintOrderDetails();
+      // cout << "is current Node == to previous node "<< (currentNode == previousNode)<<endl;
+      previousNode = currentNode->GetPrevious();
+      // previousNode->PrintOrderDetails();
+      SutureNodes(newNode,currentNode);
+      SutureNodes(previousNode, newNode);
+      // insertedNode=currentNode;
+      tempUpperNode = newNode;
+      newNode = new Node(newNode->GetOrder());
+      // levels.at(level)->AppendNode(insertedNode);
+      if(level > 0){
+        tempUpperNode->SetDown(newNode);
+      }
+    };
+      // cout <<"i suspect this wont print"<<endl;
+  };
   // void Insert(Node* newNode){
   //   bool isInsertedSuccesfully = false;
   //   string newID = get<0>(newNode->GetOrder());
@@ -237,11 +273,13 @@ class SkipList : public DoubleLinkedList {
   //     SutureNodes(currentNode,newNode);
   //   }
   // };
+
   Node* InsertOrder(order newOrder){
     Node* insertedNode;
     Node* tempUpperNode;
     int levelsToAdd = 0;
     srand(time(0));
+    cout <<rand();
     while(rand()>0.5 && levelsToAdd <maxLevel-1){
       levelsToAdd += 1;
     };
@@ -274,7 +312,34 @@ class SkipList : public DoubleLinkedList {
       delete down;
     }
   };
-  // Node* Search(){DoubleLinkedList::Search();};
+  Node* Search(int id){return SkipSearch(id);};
+  Node* SkipSearch(int id){return SkipSearch(id,maxLevel-1,nullHead);}
+  Node* SkipSearch(int id, int currentLevel,Node* startingNode){
+    if(currentLevel<0){cout<<"Order not found!"<<endl;return nullptr;};
+    Node* currentNode = startingNode;
+    int nextOrder = parseOrderNumber( get<0>(currentNode->GetNext()->GetOrder()));
+    if(nextOrder ==INT_MAX){
+      return SkipSearch(id,currentLevel-1,levels.at(currentLevel-1)->GetHead());
+    }
+    while(nextOrder<id){
+      currentNode = currentNode -> GetNext();
+      nextOrder = parseOrderNumber( get<0>(currentNode->GetNext()->GetOrder()));
+    }
+    if(nextOrder == id){
+      return currentNode ->GetNext();
+    }
+    else{
+      return SkipSearch(id, currentLevel -1,currentNode->GetDown());
+    }
+  };
+  void DisplayList(){
+    levels.at(0)->DisplayList();
+  };
+  void DisplayAllLevels(){
+    for(int i =0; i <maxLevel; i+=1){
+      levels.at(i)->DisplayList();
+    }
+  };
 
   protected:
   vector<DoubleLinkedList*> levels;
@@ -285,28 +350,52 @@ class SkipList : public DoubleLinkedList {
 void vectorToLinkedList(ordersVector vect, LinkedList &list){
   for(order elem:vect){
     list.AppendNode(new Node(elem));
-  }
+  };
+};
+void vectorToSKL(ordersVector vect, SkipList &list){
+  for(order elem:vect){
+    list.AppendNode(new Node(elem));
+  };
 };
 
 void runPart1(){
   ordersVector ordersVect = gatherData();
   LinkedList ordersLL = LinkedList(); 
+  DoubleLinkedList ordersDLL = DoubleLinkedList();
+  SkipList ordersSKL = SkipList();
   //printOrdersVector(data); //print orders vector test;
-  printOrderTuple(searchOrdersVector("Ord101", ordersVect));
-  printOrderTuple(searchOrdersVector("ORD36", ordersVect));
-  addDeliveryOrder(make_tuple("ORD51",4,"Location R"),ordersVect);
-  addDeliveryOrder(make_tuple("ORDer533",4,"LocationR"),ordersVect);
-  vectorToLinkedList(ordersVect,ordersLL);
-  ordersLL.Search(22)->PrintOrderDetails();
-  ordersLL.Search("ORD34")->PrintOrderDetails();
-  ordersLL.Search(99);//order will not be found. Trying to print is a segmentation fault
-  ordersLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
-  ordersLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
-  ordersLL.Search(99)->PrintOrderDetails(); //order now exists
-  ordersLL.DisplayList();
+  // printOrderTuple(searchOrdersVector("Ord101", ordersVect));
+  // printOrderTuple(searchOrdersVector("ORD36", ordersVect));
+  // addDeliveryOrder(make_tuple("ORD51",4,"Location R"),ordersVect);
+  // addDeliveryOrder(make_tuple("ORDer533",4,"LocationR"),ordersVect);
+  // vectorToLinkedList(ordersVect,ordersLL);
+  // ordersLL.Search(22)->PrintOrderDetails();
+  // ordersLL.Search("ORD34")->PrintOrderDetails();
+  // ordersLL.Search(99);//order will not be found. Trying to print is a segmentation fault
+  // ordersLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
+  // ordersLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
+  // ordersLL.Search(99)->PrintOrderDetails(); //order now exists
+  // ordersLL.DisplayList();
+  // vectorToLinkedList(ordersVect,ordersDLL);
+  // ordersDLL.Search(22)->PrintOrderDetails();
+  // ordersDLL.Search("ORD34")->PrintOrderDetails();
+  // ordersDLL.Search(99);//order will not be found. Trying to print is a segmentation fault
+  // ordersDLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
+  // ordersDLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
+  // ordersDLL.Search(99)->PrintOrderDetails(); //order now exists
+  // ordersDLL.DisplayList();
+  vectorToSKL(ordersVect,ordersSKL);
+  ordersSKL.SkipSearch(22)->PrintOrderDetails();
+  // ordersSKL.Search("ORD34")->PrintOrderDetails();
+  // ordersSKL.Search(99);//order will not be found. Trying to print is a segmentation fault
+  cout <<"printed"<<endl;
+  ordersSKL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
+  ordersSKL.InsertOrder(make_tuple("ORD65",3,"Location T"));
+  // ordersSKL.Search(99)->PrintOrderDetails(); //order now exists
+  ordersSKL.DisplayList();
 };
 
-
-int main () {
-  runPart1();
-};
+//temporary main for testing..
+// int main () {
+//   runPart1();
+// };
