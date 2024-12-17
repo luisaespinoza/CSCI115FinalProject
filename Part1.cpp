@@ -95,6 +95,8 @@ class LinkedList {
     int newOrderNumber = parseOrderNumber(get<0>(newOrder));
     while(nextOrderNumber<newOrderNumber){
       currentNode = currentNode->GetNext();
+      nextOrderNumber = parseOrderNumber(get<0>(currentNode->GetNext()->GetOrder()));
+      newOrderNumber = parseOrderNumber(get<0>(newOrder));
     };
     if(nextOrderNumber!=newOrderNumber){return nullptr;};
     Node* newNode = new Node(newOrder);
@@ -297,8 +299,14 @@ void runPart1(){
   vectorToLinkedList(ordersVect,ordersLL);
   ordersLL.Search(22)->PrintOrderDetails();
   ordersLL.Search("ORD34")->PrintOrderDetails();
-  ordersLL.Search(99);
+  ordersLL.Search(99);//order will not be found. Trying to print is a segmentation fault
   ordersLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
-  ordersLL.Search(99)->PrintOrderDetails();
+  ordersLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
+  ordersLL.Search(99)->PrintOrderDetails(); //order now exists
   ordersLL.DisplayList();
+};
+
+
+int main () {
+  runPart1();
 };
