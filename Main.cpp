@@ -8,5 +8,7 @@ using namespace std;
 int main () {
   runPart1();
   runPart2();
+  runPart3();
+  runPart4();
   return 0;
 };

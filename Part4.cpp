@@ -353,7 +353,7 @@ double measureRunTime(DeliveryGraph &obj, char startVertex, char destinationVert
   return elapsed;
 };
 
-void runPart3(){
+void runPart4(){
   DeliveryGraph graph;
   map<char,vector<char>> destinationPath;
   map<char,map<char,vector<char>>> path;
@@ -370,6 +370,6 @@ void runPart3(){
 
 // main for testing part3 unused in production file
 // int main () {
-//   runPart3();
+//   runPart4();
 //   return 0;
 // };
