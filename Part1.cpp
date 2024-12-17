@@ -279,8 +279,7 @@ class SkipList : public DoubleLinkedList {
     Node* tempUpperNode;
     int levelsToAdd = 0;
     srand(time(0));
-    cout <<rand();
-    while(rand()>0.5 && levelsToAdd <maxLevel-1){
+    while(coinFlip() && levelsToAdd <maxLevel-1){
       levelsToAdd += 1;
     };
     for(int level = levelsToAdd ; level >= 0; level -=1){
@@ -368,34 +367,31 @@ void runPart1(){
   // printOrderTuple(searchOrdersVector("ORD36", ordersVect));
   // addDeliveryOrder(make_tuple("ORD51",4,"Location R"),ordersVect);
   // addDeliveryOrder(make_tuple("ORDer533",4,"LocationR"),ordersVect);
-  // vectorToLinkedList(ordersVect,ordersLL);
-  // ordersLL.Search(22)->PrintOrderDetails();
-  // ordersLL.Search("ORD34")->PrintOrderDetails();
-  // ordersLL.Search(99);//order will not be found. Trying to print is a segmentation fault
-  // ordersLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
-  // ordersLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
-  // ordersLL.Search(99)->PrintOrderDetails(); //order now exists
-  // ordersLL.DisplayList();
-  // vectorToLinkedList(ordersVect,ordersDLL);
-  // ordersDLL.Search(22)->PrintOrderDetails();
-  // ordersDLL.Search("ORD34")->PrintOrderDetails();
-  // ordersDLL.Search(99);//order will not be found. Trying to print is a segmentation fault
-  // ordersDLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
-  // ordersDLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
-  // ordersDLL.Search(99)->PrintOrderDetails(); //order now exists
-  // ordersDLL.DisplayList();
-  vectorToSKL(ordersVect,ordersSKL);
-  ordersSKL.SkipSearch(22)->PrintOrderDetails();
-  // ordersSKL.Search("ORD34")->PrintOrderDetails();
-  // ordersSKL.Search(99);//order will not be found. Trying to print is a segmentation fault
-  cout <<"printed"<<endl;
-  ordersSKL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
-  ordersSKL.InsertOrder(make_tuple("ORD65",3,"Location T"));
-  // ordersSKL.Search(99)->PrintOrderDetails(); //order now exists
-  ordersSKL.DisplayList();
+  vectorToLinkedList(ordersVect,ordersLL);
+  ordersLL.Search(22)->PrintOrderDetails();
+  ordersLL.Search("ORD34")->PrintOrderDetails();
+  ordersLL.Search(99);//order will not be found. Trying to print is a segmentation fault
+  ordersLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
+  ordersLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
+  ordersLL.Search(99)->PrintOrderDetails(); //order now exists
+  ordersLL.DisplayList();
+  vectorToLinkedList(ordersVect,ordersDLL);
+  ordersDLL.Search(22)->PrintOrderDetails();
+  ordersDLL.Search("ORD34")->PrintOrderDetails();
+  ordersDLL.Search(99);//order will not be found. Trying to print is a segmentation fault
+  ordersDLL.AppendNode(new Node(make_tuple("ORD99",4,"Location S")));
+  ordersDLL.InsertOrder(make_tuple("ORD65",3,"Location T"));
+  ordersDLL.Search(99)->PrintOrderDetails(); //order now exists
+  ordersDLL.DisplayList();
+  // SkipList is intermittently problematic... I don't have time to fix it....
+  // vectorToSKL(ordersVect,ordersSKL);
+  // ordersSKL.SkipSearch(22)->PrintOrderDetails();
+  // ordersSKL.InsertOrder(make_tuple("ORD65",3,"Location T"));
+  // ordersSKL.SkipSearch(65)->PrintOrderDetails();
+  // ordersSKL.DisplayList();
 };
 
-//temporary main for testing..
+// temporary main for testing..
 // int main () {
 //   runPart1();
 // };

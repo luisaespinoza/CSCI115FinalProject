@@ -345,8 +345,11 @@ double measureRunTime(DeliveryGraph &obj, char startVertex, char destinationVert
   clock_t end = clock();
   double elapsed = double(end - start) / CLOCKS_PER_SEC;
   string searchName;
-  if(mode == 0){searchName = "BFS ";};if(mode==1){searchName = "DFS ";};if(mode==2){searchName= "Dijkstra's ";};
-  std::cout << "Time taken for "<< searchName << startVertex<< " to "<<destinationVertex << " : " << elapsed << " seconds" << std::endl;
+  if(mode == 0){searchName = "BFS ";};if(mode==1){searchName = "DFS ";};if(mode==2){searchName= "Dijkstra's ";
+  std::cout << "Time taken for "<< searchName << startVertex<< " to every destination: " << elapsed << " seconds" << std::endl;}
+  else{
+    std::cout << "Time taken for "<< searchName << startVertex<< " to "<<destinationVertex << ": " << elapsed << " seconds" << std::endl;
+  };
   return elapsed;
 };
 
@@ -365,7 +368,7 @@ void runPart3(){
   measureRunTime(graph,'D','J',destinationPath,2);
 };
 
-//main for testing part3 unused in production file
+// main for testing part3 unused in production file
 // int main () {
 //   runPart3();
 //   return 0;
