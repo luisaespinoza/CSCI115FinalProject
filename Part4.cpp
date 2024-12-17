@@ -337,14 +337,14 @@ void runPart3(){
   DeliveryGraph graph;
   map<char,vector<char>> destinationPath;
   map<char,map<char,vector<char>>> path;
-  // PrintPath(graph.BFS('A','J'));
-  // PrintPath(graph.BFS('A','D'));
-  // PrintPath(graph.BFS('B','A'));
-  // PrintPath(graph.BFS('C','B'));
-  // PrintPath(graph.DFS('A','J'));
-  // PrintPath(graph.DFS('A','D'));
-  // PrintPath(graph.DFS('B','A'));
-  // PrintPath(graph.DFS('C','B'));
+  PrintPath(graph.BFS('A','J'));
+  PrintPath(graph.BFS('A','D'));
+  PrintPath(graph.BFS('B','A'));
+  PrintPath(graph.BFS('C','B'));
+  PrintPath(graph.DFS('A','J'));
+  PrintPath(graph.DFS('A','D'));
+  PrintPath(graph.DFS('B','A'));
+  PrintPath(graph.DFS('C','B'));
   for(char const start : Vertices){
     destinationPath = graph.ShortestPaths(start);
     for( char const destination: Vertices){
